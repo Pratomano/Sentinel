@@ -6,6 +6,9 @@ import platform
 import os
 import sys
 import json
+import base64
+import struct
+import tempfile
 import threading
 from datetime import datetime
 import tkinter as tk
@@ -113,6 +116,11 @@ def deliver_metrics(flags):
     return metrics
 
 # ==============================================================================
+# LOGO OFICIAL SENTINEL (FORMATO CAPACETE MARVEL SENTINEL EM BASE64)
+# ==============================================================================
+SENTINEL_LOGO_BASE64 = "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"
+
+# ==============================================================================
 # INTERFACE GRÁFICA SENTINEL AGENT (TKINTER)
 # ==============================================================================
 
@@ -122,6 +130,23 @@ class SentinelAgentApp:
         self.root.title("Sentinel Agent — Monitoramento Windows")
         self.root.geometry("540x660")
         self.root.resizable(False, False)
+
+        # Configura AppUserModelID no Windows (para agrupar com ícone próprio na barra de tarefas)
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("sentinel.telemetry.agent.1.0")
+        except Exception:
+            pass
+
+        # Carrega o logo oficial em memória via Base64
+        try:
+            self.logo_img = tk.PhotoImage(data=SENTINEL_LOGO_BASE64)
+            self.root.iconphoto(True, self.logo_img)
+        except Exception:
+            self.logo_img = None
+
+        # Carrega e fixa o ícone nativo na barra de título do Windows (onde ficam minimizar/fechar)
+        self._apply_window_icon()
 
         # Paleta Sentinel Dark
         self.COLOR_BG = "#0f0b18"
@@ -162,6 +187,33 @@ class SentinelAgentApp:
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
+    def _apply_window_icon(self):
+        """Aplica o ícone oficial na barra de título do Windows (onde ficam minimizar/fechar)."""
+        try:
+            # 1. Tenta carregar sentinel.ico de locais conhecidos (disco ou bundle PyInstaller)
+            bundle_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+            candidates = [
+                os.path.join(bundle_dir, "sentinel.ico"),
+                os.path.join(os.path.dirname(get_config_path()), "sentinel.ico"),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentinel.ico"),
+                "sentinel.ico"
+            ]
+            for path in candidates:
+                if os.path.exists(path):
+                    self.root.iconbitmap(path)
+                    return
+
+            # 2. Se não encontrar o arquivo no disco, gera um .ico temporário no %TEMP% a partir do Base64
+            png_bytes = base64.b64decode(SENTINEL_LOGO_BASE64)
+            # Cabeçalho ICO de 22 bytes embutindo o PNG diretamente
+            ico_header = struct.pack('<HHHBBBBHHII', 0, 1, 1, 48, 48, 0, 0, 1, 32, len(png_bytes), 22)
+            temp_ico = os.path.join(tempfile.gettempdir(), "sentinel_titlebar.ico")
+            with open(temp_ico, "wb") as f:
+                f.write(ico_header + png_bytes)
+            self.root.iconbitmap(temp_ico)
+        except Exception:
+            pass
+
     def _build_ui(self):
         # Container Principal com padding
         main_frame = tk.Frame(self.root, bg=self.COLOR_BG, padx=20, pady=16)
@@ -169,11 +221,18 @@ class SentinelAgentApp:
 
         # 1. CABEÇALHO / HERO
         header_frame = tk.Frame(main_frame, bg=self.COLOR_BG)
-        header_frame.pack(fill=tk.X, pady=(0, 14))
+        header_frame.pack(fill=tk.X, pady=(0, 16))
+
+        if self.logo_img:
+            logo_label = tk.Label(header_frame, image=self.logo_img, bg=self.COLOR_BG)
+            logo_label.pack(side=tk.LEFT, padx=(0, 14))
+
+        titles_container = tk.Frame(header_frame, bg=self.COLOR_BG)
+        titles_container.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         title_label = tk.Label(
-            header_frame,
-            text="🛡️ SENTINEL AGENT",
+            titles_container,
+            text="SENTINEL AGENT",
             font=("Segoe UI", 16, "bold"),
             fg="#ffffff",
             bg=self.COLOR_BG
@@ -181,7 +240,7 @@ class SentinelAgentApp:
         title_label.pack(anchor="w")
 
         subtitle_label = tk.Label(
-            header_frame,
+            titles_container,
             text=f"Máquina: {self.machine_info['hostname']} ({self.machine_info['machineId']})",
             font=("Segoe UI", 9),
             fg=self.COLOR_MUTED,
