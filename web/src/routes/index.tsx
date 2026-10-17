@@ -4,6 +4,7 @@ import Login from '../pages/Login'
 import Dashboard from '../pages/Dashboard'
 import Register from '../pages/Register'
 import AuthSuccess from '../pages/AuthSuccess'
+import Landing from '../pages/Landing'
 
 
 export const router = createBrowserRouter([
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
     },
     {
         path: '/',
+        element: <Landing />,
+    },
+    {
+        path: '/dashboard',
         element: <ProtectedRoute />,
         children: [
             {

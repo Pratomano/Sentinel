@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../api/clients';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import SentinelLogo from '../components/SentinelLogo';
 
 interface DiskMetric {
   device: string;
@@ -133,17 +134,17 @@ export default function Dashboard() {
       {/* TOPBAR */}
       <header className="border-b border-purple-500/20 bg-[#150f1f]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-600/40">
-              <span className="font-black text-white text-lg tracking-wider">S</span>
-            </div>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <SentinelLogo className="w-10 h-10 transition-transform group-hover:scale-105" />
             <div>
-              <span className="font-bold text-lg text-white tracking-wide">SENTINEL</span>
+              <span className="font-bold text-lg text-white tracking-wide group-hover:text-purple-200 transition-colors">
+                SENTINEL
+              </span>
               <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-medium border border-purple-500/30">
                 PROJETO JAMES BOND
               </span>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center space-x-4">
             <div className="hidden sm:flex items-center space-x-2 text-xs text-purple-300/70 bg-purple-950/40 px-3 py-1.5 rounded-lg border border-purple-500/20">
@@ -329,11 +330,10 @@ export default function Dashboard() {
 
                     {/* STATUS BADGE ONLINE/OFFLINE */}
                     <div
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 border ${
-                        isOnline
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 border ${isOnline
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                           : 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
-                      }`}
+                        }`}
                     >
                       <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
                       <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>

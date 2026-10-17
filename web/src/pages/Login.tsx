@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/clients';
 import { useAuth } from '../contexts/AuthContext';
+import SentinelLogo from '../components/SentinelLogo';
 
 // 1. Schema de Validação (O Zod barra os erros antes de enviar pra API)
 const loginSchema = z.object({
@@ -47,7 +48,7 @@ export default function Login() {
       login(response.data.token || response.data.accessToken, response.data.user || response.data);
 
       // 5. Entra no Dashboard Protegido
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       // Capturando mensagens de erro do NestJS (Ex: "Credenciais inválidas")
       const message = err.response?.data?.message || 'Erro ao acessar a conta. Verifique suas credenciais.';
@@ -71,7 +72,10 @@ export default function Login() {
 
       {/* Cartão de Login (Glassmorphism) */}
       <div className="w-full max-w-md p-8 rounded-2xl bg-[#150f1f]/60 border border-purple-500/20 backdrop-blur-xl shadow-2xl shadow-purple-900/20 relative z-10">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Link to="/" className="mb-4 group">
+            <SentinelLogo className="w-16 h-16 transition-transform group-hover:scale-105" />
+          </Link>
           <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Acessar Dashboard</h1>
           <p className="text-purple-300/60 mt-2 text-sm">Acesse a plataforma Sentinel</p>
         </div>
